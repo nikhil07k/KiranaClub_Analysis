@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kirana Club — Reward trust fix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1F1B3A;
+    --paper:#F7F3EA;
+    --paper-card:#FFFFFF;
+    --gold:#D98E2A;
+    --gold-bg:#FBEAD2;
+    --terracotta:#C45A3B;
+    --terracotta-bg:#F6DED4;
+    --sage:#5C7A5C;
+    --sage-bg:#E3EBE2;
+    --kirana-orange:#F15A24;
+    --text:#2C2A26;
+    --text-soft:#6b6759;
+    --line:rgba(31,27,58,0.13);
+    --serif:'Fraunces',serif;
+    --sans:'Inter',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    padding:32px 40px 48px;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; }
+
+  .byline-tag{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:var(--mono); font-size:11px; font-weight:500;
+    color:var(--kirana-orange);
+    background:#FDEEE5;
+    border:1px solid rgba(241,90,36,.35);
+    border-radius:20px;
+    padding:7px 14px;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .byline-tag:hover{ background:var(--kirana-orange); color:#fff; border-color:var(--kirana-orange); }
+  .byline-dot{ width:6px; height:6px; border-radius:50%; background:var(--kirana-orange); flex-shrink:0; }
+  .byline-tag:hover .byline-dot{ background:#fff; }
+  .byline-tag .icon{ width:13px; height:13px; }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:28px;
+    padding-bottom:20px;
+    border-bottom:2px solid var(--kirana-orange);
+  }
+  .icon{ display:inline-flex; vertical-align:-3px; }
+  .icon svg{ width:1em; height:1em; }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--kirana-orange);
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .eyebrow i{ font-size:13px; }
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.5rem,2.6vw,2.1rem);
+    color:var(--ink);
+    line-height:1.15;
+    max-width:560px;
+  }
+  .meta{ display:flex; gap:22px; flex-wrap:wrap; }
+  .meta div{ font-family:var(--mono); font-size:10.5px; color:var(--text-soft); }
+  .meta b{ display:block; color:var(--ink); font-size:12.5px; font-weight:600; margin-top:2px; }
+
+  /* tab nav */
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:var(--mono);
+    font-size:11.5px;
+    padding:8px 16px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text-soft);
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .tab:hover{ border-color:var(--gold); color:var(--ink); }
+  .tab.active{ background:var(--ink); border-color:var(--ink); color:var(--gold-bg); }
+  .tab .icon{ font-size:13px; margin-right:2px; }
+
+  .tab.tab-about{ border-color:rgba(241,90,36,.4); color:var(--kirana-orange); }
+  .tab.tab-about:hover{ border-color:var(--kirana-orange); }
+  .tab.tab-about.active{ background:var(--kirana-orange); border-color:var(--kirana-orange); color:#fff; }
+
+  .view{ display:none; }
+  .view.active{ display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .hint{
+    font-size:12.5px;
+    color:var(--text-soft);
+    margin-bottom:18px;
+    font-family:var(--mono);
+  }
+
+  /* ---- flip cards: pain points ---- */
+  .flip-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+  }
+  @media (max-width:980px){ .flip-grid{ grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:640px){ .flip-grid{ grid-template-columns:repeat(2,1fr);} }
+
+  .flip-card{
+    perspective:1000px;
+    height:150px;
+    cursor:pointer;
+  }
+  .flip-inner{
+    position:relative;
+    width:100%; height:100%;
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.4,.1,.2,1);
+  }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    border-radius:10px;
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    border:1px solid var(--line);
+  }
+  .flip-front{ background:var(--paper-card); }
+  .flip-front.tier-critical{ border-left:3px solid var(--terracotta); }
+  .flip-front.tier-major{ border-left:3px solid var(--gold); }
+  .flip-front.tier-minor{ border-left:3px solid var(--text-soft); }
+  .flip-front .tag{
+    font-family:var(--mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase;
+    padding:2px 7px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; width:fit-content;
+  }
+  .flip-front .tag .icon{ font-size:11px; }
+  .tier-critical .tag{ background:var(--terracotta-bg); color:#7a3522; }
+  .tier-major .tag{ background:var(--gold-bg); color:#7a5410; }
+  .tier-minor .tag{ background:#eee; color:var(--text-soft); }
+  .flip-front h3{ font-size:.92rem; font-weight:600; color:var(--ink); line-height:1.25; }
+  .flip-front .flip-cue{ font-family:var(--mono); font-size:9.5px; color:var(--text-soft); display:flex; align-items:center; gap:4px; }
+
+  .flip-back{
+    background:var(--ink);
+    color:var(--paper);
+    transform:rotateY(180deg);
+    justify-content:center;
+  }
+  .flip-back p{ font-size:.78rem; line-height:1.4; color:#d8d4f0; }
+
+  /* ---- map view ---- */
+  .map-shell{
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:22px;
+  }
+  @media (max-width:880px){ .map-shell{ grid-template-columns:1fr; } }
+  .map-canvas{
+    position:relative;
+    background:var(--ink);
+    border-radius:12px;
+    height:420px;
+    border:1px solid var(--line);
+    padding:36px 20px 44px 20px;
+  }
+  .map-plot{ position:relative; width:100%; height:100%; }
+  .gridline{ position:absolute; background:rgba(247,243,234,.08); }
+  .gridline.h{ left:0; right:0; height:1px; }
+  .gridline.v{ top:0; bottom:0; width:1px; }
+  .scale-tick{ position:absolute; font-family:var(--mono); font-size:9px; color:#7a749f; }
+  .axis-title{
+    position:absolute;
+    font-family:var(--mono); font-size:10px; color:#a8a2cf;
+    letter-spacing:.04em;
+  }
+  .axis-title.x{ bottom:-32px; left:50%; transform:translateX(-50%); }
+  .axis-title.y{ left:-30px; top:50%; transform:translateY(-50%) rotate(-90deg); transform-origin:center; white-space:nowrap; }
+  .map-point-group{ position:absolute; transform:translate(-50%,-50%); cursor:pointer; z-index:3; display:flex; align-items:center; gap:6px; }
+  .map-point{
+    width:13px; height:13px; border-radius:50%; flex-shrink:0;
+    border:2px solid var(--ink);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .map-point-group:hover .map-point, .map-point-group.selected .map-point{ transform:scale(1.4); box-shadow:0 0 0 6px rgba(217,142,42,.2); }
+  .map-point.critical{ background:var(--terracotta); }
+  .map-point.major{ background:var(--gold); }
+  .map-point.minor{ background:#8d87b8; }
+  .map-point-label{
+    font-family:var(--mono); font-size:9.5px; color:#c9c4e8;
+    white-space:nowrap; pointer-events:none;
+    transition:color .18s ease;
+  }
+  .map-point-group:hover .map-point-label, .map-point-group.selected .map-point-label{ color:var(--paper); font-weight:500; }
+  .map-legend{
+    display:flex; gap:18px; margin-top:14px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:10.5px; color:var(--text-soft);
+  }
+  .map-legend span{ display:flex; align-items:center; gap:6px; }
+  .legend-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; flex-shrink:0; }
+  .map-detail{
+    background:var(--ink); color:var(--paper); border-radius:12px; padding:20px;
+    display:flex; flex-direction:column; justify-content:center; min-height:200px;
+  }
+  .map-detail .tag{ font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border-radius:20px; width:fit-content; margin-bottom:10px; }
+  .map-detail h3{ font-family:var(--serif); font-weight:600; font-size:1.2rem; margin-bottom:8px; }
+  .map-detail p{ font-size:.84rem; color:#c9c4e8; line-height:1.45; }
+
+  /* ---- priority list ---- */
+  .priority-stack{ display:flex; flex-direction:column; max-width:760px; }
+  .priority-row{ display:flex; gap:18px; padding:16px 0; border-top:1px solid var(--line); align-items:flex-start; }
+  .priority-row:last-child{ border-bottom:1px solid var(--line); }
+  .priority-rank{ font-family:var(--serif); font-size:1.7rem; font-weight:600; color:var(--gold-bg); -webkit-text-stroke:1.2px var(--gold); width:40px; flex-shrink:0; }
+  .priority-body h3{ font-size:.96rem; font-weight:600; color:var(--ink); margin-bottom:4px; }
+  .priority-body p{ font-size:.84rem; color:var(--text-soft); }
+
+  /* ---- solutions ---- */
+  .sol-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .sol-card{ border:1px solid var(--line); border-radius:10px; padding:16px; background:var(--paper-card); }
+  .sol-card.adopted{ border-color:var(--gold); background:var(--gold-bg); }
+  .sol-card .verdict{ font-family:var(--mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-soft); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+  .sol-card .verdict .icon{ font-size:12px; }
+  .sol-card.adopted .verdict{ color:#7a5410; }
+  .sol-card h3{ font-family:var(--serif); font-weight:600; font-size:1rem; margin-bottom:6px; color:var(--ink); }
+  .sol-card p{ font-size:.8rem; color:var(--text-soft); }
+
+  /* ---- metrics ---- */
+  .metric-table{ max-width:880px; border-top:1px solid var(--line); }
+  .metric-row{ display:grid; grid-template-columns:220px 1fr; gap:18px; padding:14px 0; border-bottom:1px solid var(--line); }
+  @media (max-width:620px){ .metric-row{ grid-template-columns:1fr; gap:4px; } }
+  .metric-name{ font-family:var(--mono); font-size:.8rem; font-weight:600; color:var(--ink); display:flex; align-items:flex-start; gap:7px; }
+  .metric-name .icon{ color:var(--gold); margin-top:1px; flex-shrink:0; }
+  .metric-desc{ font-size:.84rem; color:var(--text-soft); }
+  .avoid-box{ margin-top:18px; max-width:880px; background:var(--terracotta-bg); border-radius:10px; padding:14px 18px; border-left:3px solid var(--terracotta); }
+  .avoid-box b{ color:#7a3522; font-size:.78rem; font-family:var(--mono); text-transform:uppercase; letter-spacing:.04em; }
+  .avoid-box p{ margin-top:6px; font-size:.84rem; color:#5a2a1c; }
+
+  footer{ margin-top:36px; font-family:var(--mono); font-size:10px; color:var(--text-soft); }
+
+  /* ---- about view ---- */
+  .about-lead-quote{
+    text-align:center;
+    padding:6px 0 24px;
+    margin-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .about-lead-quote p{
+    font-family:var(--serif); font-weight:600; font-style:italic; font-size:1.6rem;
+    color:var(--ink); line-height:1.3;
+  }
+  .about-lead-quote span{
+    display:block; margin-top:8px;
+    font-family:var(--mono); font-size:11.5px; color:var(--kirana-orange);
+  }
+
+  .about-profile{ display:flex; gap:18px; align-items:center; margin-bottom:28px; }
+  .about-avatar{
+    width:64px; height:64px; border-radius:50%; flex-shrink:0;
+    overflow:hidden;
+  }
+  .about-avatar svg{ width:100%; height:100%; display:block; }
+  .about-name{ font-family:var(--serif); font-weight:600; font-size:1.5rem; color:var(--ink); }
+  .about-role{ font-size:.9rem; color:var(--text-soft); margin-top:3px; }
+  .about-edu{ font-family:var(--mono); font-size:11px; color:var(--text-soft); margin-top:6px; }
+  .about-edu b{ color:var(--ink); font-weight:600; }
+  .about-links{ display:flex; gap:18px; margin-top:10px; flex-wrap:wrap; }
+  .about-link{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:11px; color:var(--text-soft);
+    text-decoration:none;
+  }
+  .about-link:hover{ color:var(--kirana-orange); }
+  .about-link .icon{ width:13px; height:13px; }
+
+  .about-section-title{
+    font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--ink);
+    margin:26px 0 14px;
+  }
+
+  .company-strip{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .company-chip{
+    display:flex; align-items:center; gap:10px;
+    background:var(--paper-card); border:1px solid var(--line); border-radius:30px;
+    padding:8px 16px 8px 8px; cursor:pointer;
+    transition:border-color .18s ease, background .18s ease;
+  }
+  .company-chip:hover{ border-color:var(--kirana-orange); }
+  .company-chip.active{ background:var(--ink); border-color:var(--ink); }
+  .company-logo{
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-weight:600; font-size:.85rem;
+    color:#fff;
+  }
+  .company-chip-text{ display:flex; flex-direction:column; }
+  .company-chip-name{ font-size:.84rem; font-weight:600; color:var(--ink); }
+  .company-chip.active .company-chip-name{ color:var(--paper); }
+  .company-chip-when{ font-family:var(--mono); font-size:9.5px; color:var(--text-soft); }
+  .company-chip.active .company-chip-when{ color:#a8a2cf; }
+
+  .company-detail{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:12px;
+    padding:18px 22px;
+  }
+  .company-detail-when{ font-family:var(--mono); font-size:11px; color:var(--text-soft); margin-bottom:4px; }
+  .company-detail b{ font-size:.96rem; color:var(--ink); font-weight:600; }
+  .company-detail ul{ margin:10px 0 0; padding-left:18px; }
+  .company-detail li{ font-size:.86rem; color:var(--text-soft); line-height:1.55; margin-bottom:6px; }
+  .company-detail li:last-child{ margin-bottom:0; }
+
+  .about-built{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .about-built-card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:10px; padding:16px;
+  }
+  .built-icon{
+    width:30px; height:30px; border-radius:8px;
+    background:var(--gold-bg); color:#7a5410;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:10px;
+  }
+  .built-icon svg{ width:16px; height:16px; }
+  .about-built-card b{ font-size:.88rem; color:var(--ink); font-weight:600; }
+  .about-built-card p{ font-size:.8rem; color:var(--text-soft); margin-top:6px; }
+
+  .about-skills{ display:flex; flex-wrap:wrap; gap:8px; }
+  .about-skills span{
+    font-family:var(--mono); font-size:11px; color:var(--text-soft);
+    background:var(--paper-card); border:1px solid var(--line);
+    padding:5px 12px; border-radius:20px;
+  }
+
+  .about-aside{
+    margin-top:28px;
+    font-family:var(--mono); font-size:12px; color:var(--text-soft);
+    text-align:center;
+  }
+
+  .about-cta{
+    margin-top:30px;
+    background:var(--ink); color:var(--paper);
+    border-radius:12px; padding:22px 26px;
+    display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
+  }
+  .about-cta b{ font-size:1rem; font-weight:600; }
+  .about-cta p{ font-size:.84rem; color:#c9c4e8; margin-top:4px; }
+  .about-cta-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--kirana-orange); color:#fff;
+    font-family:var(--mono); font-size:12.5px; font-weight:500;
+    padding:11px 20px; border-radius:24px;
+    text-decoration:none; white-space:nowrap;
+    transition:opacity .18s ease;
+  }
+  .about-cta-btn:hover{ opacity:.88; }
+  .about-cta-btn .icon{ width:14px; height:14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Product case study</div>
+      <h1>Closing the trust gap in Kirana Club's reward system</h1>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:14px;">
+      <button class="byline-tag" id="bylineTag">
+        <span class="byline-dot"></span>
+        Case solved by Nikhil Kumar
+        <span class="icon" style="margin-left:2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <div class="meta">
+        <div>Review duration<b>Dec 2025 – Jun 2026</b></div>
+        <div>Sources for review<b>Play Store · App Store</b></div>
+        <div>Method of evaluation<b>Frequency × impact triage</b></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-view="pain"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1.5-5.5A8.38 8.38 0 0 1 3.5 11 8.5 8.5 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg></span> What customers complain about</button>
+    <button class="tab" data-view="map"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="14" cy="14" r="2"/><path d="M7.5 16.5l5-1M15.5 12.5l1.5-5"/></svg></span> Where it hurts most</button>
+    <button class="tab" data-view="priority"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></span> What matters most</button>
+    <button class="tab" data-view="solutions"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 2a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 2z"/></svg></span> How we can solve it</button>
+    <button class="tab" data-view="metrics"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span> What to watch next</button>
+    <button class="tab tab-about" data-view="about"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg></span> Who solved this</button>
+  </div>
+
+  <div class="view active" id="view-pain">
+    <div class="hint">10 pain points, ranked by urgency. Hover or tap any card to flip it.</div>
+    <div class="flip-grid" id="flipGrid"></div>
+  </div>
+
+  <div class="view" id="view-map">
+    <div class="hint">Each problem placed by how often users mention it, and how much it hurts trust. Click a dot for the full read.</div>
+    <div class="map-shell">
+      <div>
+        <div class="map-canvas" id="mapCanvas">
+          <div class="map-plot" id="mapPlot"></div>
+        </div>
+        <div class="map-legend">
+          <span><span class="legend-dot" style="background:var(--terracotta)"></span> fix first</span>
+          <span><span class="legend-dot" style="background:var(--gold)"></span> fix next</span>
+          <span><span class="legend-dot" style="background:#8d87b8"></span> lower urgency</span>
+        </div>
+      </div>
+      <div class="map-detail" id="mapDetail">
+        <span class="tag" id="detailTag" style="background:rgba(217,142,42,.18); color:var(--gold-bg);">select a point</span>
+        <h3 id="detailTitle">Tap a dot</h3>
+        <p id="detailBody">Each point is one pain point, positioned by how often it's mentioned and how much it costs in trust.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-priority">
+    <div class="hint">Why this one, first. Frequency over time beats a single loud spike.</div>
+    <div class="priority-stack" id="priorityStack"></div>
+  </div>
+
+  <div class="view" id="view-solutions">
+    <div class="hint">Five paths considered. Status visibility and a real appeal flow aren't competing ideas — they're sequential parts of one fix.</div>
+    <div class="sol-grid" id="solGrid"></div>
+  </div>
+
+  <div class="view" id="view-metrics">
+    <div class="hint">Metrics that prove the loop closed, not metrics that just look good on a slide.</div>
+    <div class="metric-table" id="metricTable"></div>
+    <div class="avoid-box">
+      <b>Explicitly avoided</b>
+      <p>Raw count of rewards approved. Optimizing that number directly undermines the fraud detection's actual purpose — it just shifts the problem rather than solving it.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-about">
+    <div class="about-lead-quote">
+      <p>&ldquo;Stay hungry, stay foolish.&rdquo;</p>
+      <span>&mdash; Steve Jobs</span>
+    </div>
+
+    <div class="about-profile">
+      <div class="about-avatar">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="32" fill="#1F1B3A"/><circle cx="32" cy="26" r="11" fill="#D98E2A"/><path d="M14 56c0-11 8-18 18-18s18 7 18 18" fill="#D98E2A"/></svg>
+      </div>
+      <div>
+        <h2 class="about-name">Nikhil Kumar</h2>
+        <p class="about-role">The one who loves to learn, build, and solve problems.</p>
+        <p class="about-edu"><b>MBA, IIM Calcutta &middot; top 3% of cohort, 99th percentile</b> &middot; BTech CSE, VNIT Nagpur</p>
+        <div class="about-links">
+          <a href="https://www.linkedin.com/in/nikhil07k" class="about-link"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 13v4"/></svg></span>linkedin.com/in/nikhil07k</a>
+          <a href="mailto:nikhilkumar27.in@gmail.com" class="about-link"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>nikhilkumar27.in@gmail.com</a>
+          <span class="about-link" style="cursor:default;"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1 .36 1.94.68 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.23-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.85.68A2 2 0 0 1 22 16.92z"/></svg></span>+91 94317 47194</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="about-section-title">Where I have worked</h3>
+    <div class="company-strip" id="companyStrip"></div>
+    <div class="company-detail" id="companyDetail">
+      <div class="company-detail-when" id="companyWhen">May&rsquo;26 &ndash; present</div>
+      <b id="companyRole">Consulting Analyst, Accenture</b>
+      <ul id="companyBody"><li>Benchmarked 52 global pension indices and built an interactive Replit-based platform to visualize insights and competitive comparisons.</li></ul>
+    </div>
+
+    <h3 class="about-section-title">Built before, on my own</h3>
+    <div class="about-built">
+      <div class="about-built-card">
+        <span class="icon built-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4M9 6h6v4H9z"/></svg></span>
+        <b>Retail expense tracker app</b>
+        <p>An e-ledger Android app with 5 features, built solo from idea to live users, capable of processing 90K daily transactions.</p>
+      </div>
+      <div class="about-built-card">
+        <span class="icon built-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></span>
+        <b>Loan underwriting workflow</b>
+        <p>An AI-powered workflow cutting analyst processing time 70&ndash;80%, using Langflow and Claude.</p>
+      </div>
+      <div class="about-built-card">
+        <span class="icon built-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="18" cy="8" r="2.3"/><path d="M22 20c0-2.6-1.9-4.6-4.5-5"/></svg></span>
+        <b>Retiree mentorship platform</b>
+        <p>Pitched a GTM strategy and MVP for a &#8377;62K Cr TAM platform to a tech and AI investor.</p>
+      </div>
+      <div class="about-built-card">
+        <span class="icon built-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5M3 8v9M21 8v9"/></svg></span>
+        <b>Microlearning platform</b>
+        <p>Developed a skill-to-employment pathway strategy for 1M+ beneficiaries through VR-enabled STEM microlearning.</p>
+      </div>
+      <div class="about-built-card">
+        <span class="icon built-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="14" width="5" height="6" rx="1"/><rect x="9.5" y="9" width="5" height="11" rx="1"/><rect x="17" y="4" width="5" height="16" rx="1"/></svg></span>
+        <b>Quick commerce SCM study</b>
+        <p>Conducted a supply chain market study and stakeholder interviews across 4 quick commerce players in Kolkata to identify operational gaps.</p>
+      </div>
+    </div>
+
+    <h3 class="about-section-title">Skills this case study draws on</h3>
+    <div class="about-skills">
+      <span>Product strategy</span><span>GTM strategy</span><span>Stakeholder management</span>
+      <span>Market research</span><span>SQL</span><span>Python</span><span>Dashboarding</span>
+      <span>Figma</span><span>JIRA</span><span>Financial modelling</span>
+      <span>AI workflows</span><span>Google Agent Development Kit</span><span>CrewAI</span><span>Langchain</span>
+    </div>
+
+    <p class="about-aside">You may find me busy building my own Jarvis on Fridays.</p>
+
+    <div class="about-cta">
+      <div>
+        <b>Want to talk through how I'd approach this for your team?</b>
+        <p>Happy to walk through the reasoning, or take on a real prioritization problem you're facing.</p>
+      </div>
+      <a href="mailto:nikhilkumar27.in@gmail.com?subject=Let's%20talk" class="about-cta-btn">
+        Get in touch
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+
+  <footer>Prepared as a PM case study exercise, based on publicly available app store reviews · Kirana Club / Meesho</footer>
+</div>
+
+<script>
+const ICONS = {
+  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+  message: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1.5-5.5A8.38 8.38 0 0 1 3.5 11 8.5 8.5 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg>',
+  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="14" cy="14" r="2"/><path d="M7.5 16.5l5-1M15.5 12.5l1.5-5"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 2a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 2z"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h13l-3 4 3 4H5"/></svg>',
+  dot: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+  corner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v8a4 4 0 0 0 4 4h6M16 13l3 3-3 3"/></svg>',
+  hourglass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3c0 6 5 6 5 9s-5 3-5 9M17 3c0 6-5 6-5 9s5 3 5 9"/></svg>',
+  headset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1"/><rect x="17" y="14" width="4" height="6" rx="1"/></svg>',
+  shieldX: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.8 6.2.6-4.7 4.2 1.4 6.2L12 16.7 6.5 19.8l1.4-6.2-4.7-4.2 6.2-.6L12 3z"/></svg>',
+};
+function icon(name, cls){ return `<span class="icon ${cls||''}">${ICONS[name]}</span>`; }
+</script>
+<script>
+const painPoints = [
+  { tier:"critical", tag:"Trust-breaking", title:"\u201CI never got my reward\u201D", back:"Users say earned prizes get denied with a generic \u201Cflagged as spam\u201D reply, and there's no way to appeal it." },
+  { tier:"critical", tag:"Trust-breaking", title:"A delivery fee shows up late", back:"People mention free delivery shown in the cart, then a charge appearing at payout. The most upvoted complaint in the data (102 votes)." },
+  { tier:"major", tag:"Significant", title:"Support replies don't help", back:"People keep hitting the same dead end \u2014 the \u201CSahayata Kendra\u201D form returns a generic reply no matter what they ask." },
+  { tier:"major", tag:"Significant", title:"\u201CWhy is there no English?\u201D", back:"Many users say the app is Hindi-only, and the same \u201Ccoming soon\u201D reply has been given since roughly 2023." },
+  { tier:"major", tag:"Significant", title:"The app goes blank", back:"Several users describe a white screen after login that comes back even after the team says it's fixed." },
+  { tier:"minor", tag:"Lower urgency", title:"Stuck mid-verification", back:"Some users say their documents sit \u201Cunder review\u201D for weeks with no explanation." },
+  { tier:"minor", tag:"Lower urgency", title:"Orders got harder to place", back:"One new user said the minimum order jumped from \u20B9300 to \u20B9800 right after their first order." },
+  { tier:"minor", tag:"Lower urgency", title:"Deliveries arrive late", back:"Users describe late, damaged, or incomplete orders, with refunds hard to get." },
+  { tier:"minor", tag:"Lower urgency", title:"\u201CWhere did search go?\u201D", back:"A few users noticed the search bar disappeared after a recent update." },
+  { tier:"minor", tag:"Lower urgency", title:"Fewer big brands than expected", back:"Some users want more familiar FMCG brands and a wider product range." },
+];
+
+const mapPoints = [
+  { x:78, y:24, tier:"critical", short:"\u201CI never got my reward\u201D", title:"\u201CI never got my reward\u201D", tag:"Fix first", body:"High frequency, high impact, self-inflicted \u2014 the company's own \u201Cspam\u201D policy creates the complaint." },
+  { x:80, y:42, tier:"critical", short:"Delivery fee shows up late", title:"A delivery fee shows up late", tag:"Fix first", body:"102 helpful votes on one review \u2014 the loudest single signal, even if frequency is lower than rewards." },
+  { x:25, y:24, tier:"major", short:"Support replies don't help", title:"Support replies don't help", tag:"Fix next", body:"Every other fix gets undercut if this stays broken \u2014 it's the channel every dispute passes through." },
+  { x:25, y:42, tier:"major", short:"\u201CWhy is there no English?\u201D", title:"\u201CWhy is there no English?\u201D", tag:"Fix next", body:"The oldest unresolved issue. Damage now comes from the broken promise, not the missing feature." },
+  { x:78, y:60, tier:"major", short:"The app goes blank", title:"The app goes blank", tag:"Fix next", body:"Blocks usage entirely for some users, but a more conventional engineering fix path." },
+  { x:25, y:60, tier:"minor", short:"Stuck mid-verification", title:"Stuck mid-verification", tag:"Lower urgency", body:"Frustrating but bounded \u2014 affects onboarding, not retention of active users." },
+  { x:25, y:76, tier:"minor", short:"Orders got harder to place", title:"Orders got harder to place", tag:"Lower urgency", body:"Sharp retention risk for small shopkeepers, but lower volume this window." },
+  { x:78, y:78, tier:"minor", short:"Deliveries arrive late", title:"Deliveries arrive late", tag:"Lower urgency", body:"Persistent, but relatively lower volume than trust and reward issues." },
+  { x:25, y:90, tier:"minor", short:"\u201CWhere did search go?\u201D", title:"\u201CWhere did search go?\u201D", tag:"Lower urgency", body:"A new regression worth a quick fix, but narrow in scope." },
+  { x:78, y:92, tier:"minor", short:"Fewer big brands than expected", title:"Fewer big brands than expected", tag:"Lower urgency", body:"A roadmap and sourcing question more than an urgent fix." },
+];
+
+const priorities = [
+  { rank:"01", title:"Reward non-delivery", body:"Highest frequency and impact, not a single spike. Damages the product's core asset \u2014 trust inside a tightly networked community. Fixable through process, not a rebuild." },
+  { rank:"02", title:"Checkout fee transparency", body:"A single highly-upvoted review is a weaker signal than a sustained pattern \u2014 but the fix is contained and high-visibility." },
+  { rank:"03", title:"Support responsiveness", body:"Fixes here give every other fix somewhere real to land, instead of being undercut by the same canned reply." },
+  { rank:"04", title:"Language, split in two", body:"An honest communication fix now \u2014 stop the unfulfilled promise \u2014 and a properly scoped localization roadmap separately." },
+];
+
+const solutions = [
+  { adopted:true, icon:"check", verdict:"Adopted", title:"A. Status tracking", body:"Show every reward's state \u2014 earned, under review, approved, denied with reason \u2014 visible at all times." },
+  { adopted:true, icon:"check", verdict:"Adopted", title:"B. Appeal flow", body:"A real, time-bound dispute path, replacing the current generic, unresolved reply." },
+  { adopted:false, icon:"clock", verdict:"Parallel track", title:"C. Fraud model audit", body:"Investigate the false positive rate of the spam-detection logic, alongside, not blocking, launch." },
+  { adopted:false, icon:"pause", verdict:"Deferred", title:"D. Redesign reward structure", body:"Smaller, instant payouts instead of leveled rewards. Too disruptive for now \u2014 a later initiative." },
+  { adopted:false, icon:"corner", verdict:"Folded into A", title:"E. Pre-commit criteria", body:"Show eligibility rules before a level starts, not after denial." },
+];
+
+const metrics = [
+  { icon:"hourglass", name:"Dispute resolution time", desc:"Flag to resolution. Target SLA 48\u201372 hours \u2014 measures if the appeal flow works." },
+  { icon:"message", name:"Trust-language review volume", desc:"Monthly count of reviews using \u201Cfraud,\u201D \u201Cfake app,\u201D or \u201Cno response\u201D tied to rewards." },
+  { icon:"shieldX", name:"Spam-flag false positive rate", desc:"Share of flagged rewards overturned on appeal \u2014 justifies recalibrating the model." },
+  { icon:"headset", name:"Reward-related ticket volume", desc:"Should drop once upfront visibility answers questions before they escalate." },
+  { icon:"star", name:"Overall app rating (guardrail)", desc:"Lagging sanity check, not a primary target \u2014 other issues move it too." },
+];
+
+const tierIcon = { critical:'alert', major:'flag', minor:'dot' };
+const flipGrid = document.getElementById('flipGrid');
+painPoints.forEach(p=>{
+  const card = document.createElement('div');
+  card.className = 'flip-card';
+  card.innerHTML = `
+    <div class="flip-inner">
+      <div class="flip-face flip-front tier-${p.tier}">
+        <span class="tag">${icon(tierIcon[p.tier])}${p.tag}</span>
+        <h3>${p.title}</h3>
+        <span class="flip-cue">tap for detail \u2192</span>
+      </div>
+      <div class="flip-face flip-back">
+        <p>${p.back}</p>
+      </div>
+    </div>`;
+  card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+  card.addEventListener('mouseenter', ()=> card.classList.add('flipped'));
+  card.addEventListener('mouseleave', ()=> card.classList.remove('flipped'));
+  flipGrid.appendChild(card);
+});
+
+const mapPlot = document.getElementById('mapPlot');
+const detailTag = document.getElementById('detailTag');
+const detailTitle = document.getElementById('detailTitle');
+const detailBody = document.getElementById('detailBody');
+
+function buildMap(){
+  mapPlot.innerHTML = '';
+
+  [25,50,75].forEach(pct=>{
+    const h = document.createElement('div');
+    h.className = 'gridline h';
+    h.style.top = (100-pct) + '%';
+    mapPlot.appendChild(h);
+    const v = document.createElement('div');
+    v.className = 'gridline v';
+    v.style.left = pct + '%';
+    mapPlot.appendChild(v);
+  });
+
+  [['low',0],['mid',50],['high',100]].forEach(([label,pct])=>{
+    const tx = document.createElement('div');
+    tx.className = 'scale-tick';
+    tx.textContent = label;
+    tx.style.left = pct + '%';
+    tx.style.bottom = '-18px';
+    tx.style.transform = pct===0 ? 'translateX(0)' : pct===100 ? 'translateX(-100%)' : 'translateX(-50%)';
+    mapPlot.appendChild(tx);
+
+    const ty = document.createElement('div');
+    ty.className = 'scale-tick';
+    ty.textContent = label;
+    ty.style.left = '-28px';
+    ty.style.top = (100-pct) + '%';
+    ty.style.transform = pct===0 ? 'translateY(-100%)' : pct===100 ? 'translateY(0)' : 'translateY(-50%)';
+    mapPlot.appendChild(ty);
+  });
+
+  const ax = document.createElement('div');
+  ax.className = 'axis-title x';
+  ax.textContent = 'how often users mention it';
+  mapPlot.appendChild(ax);
+
+  const ay = document.createElement('div');
+  ay.className = 'axis-title y';
+  ay.textContent = 'how much it costs in trust';
+  mapPlot.appendChild(ay);
+
+  mapPoints.forEach((p,i)=>{
+    const group = document.createElement('div');
+    group.className = 'map-point-group';
+    group.style.left = p.x + '%';
+    group.style.top = (100-p.y) + '%';
+    const labelSide = p.x > 55 ? 'row-reverse' : 'row';
+    group.style.flexDirection = labelSide;
+    group.innerHTML = `<div class="map-point ${p.tier}"></div><div class="map-point-label">${p.short}</div>`;
+    group.addEventListener('click', ()=>selectPoint(i));
+    mapPlot.appendChild(group);
+  });
+}
+buildMap();
+function selectPoint(i){
+  document.querySelectorAll('.map-point-group').forEach(d=>d.classList.remove('selected'));
+  document.querySelectorAll('.map-point-group')[i].classList.add('selected');
+  const p = mapPoints[i];
+  const colors = { critical:['rgba(196,90,59,.25)','#f1d6cb'], major:['rgba(217,142,42,.22)','#fbead2'], minor:['rgba(141,135,184,.2)','#c9c4e8'] };
+  detailTag.style.background = colors[p.tier][0];
+  detailTag.style.color = colors[p.tier][1];
+  detailTag.textContent = p.tag;
+  detailTitle.textContent = p.title;
+  detailBody.textContent = p.body;
+}
+
+const priorityStack = document.getElementById('priorityStack');
+priorities.forEach(p=>{
+  const el = document.createElement('div');
+  el.className = 'priority-row';
+  el.innerHTML = `<div class="priority-rank">${p.rank}</div><div class="priority-body"><h3>${p.title}</h3><p>${p.body}</p></div>`;
+  priorityStack.appendChild(el);
+});
+
+const solGrid = document.getElementById('solGrid');
+solutions.forEach(s=>{
+  const el = document.createElement('div');
+  el.className = 'sol-card' + (s.adopted ? ' adopted' : '');
+  el.innerHTML = `<div class="verdict">${icon(s.icon)}${s.verdict}</div><h3>${s.title}</h3><p>${s.body}</p>`;
+  solGrid.appendChild(el);
+});
+
+const metricTable = document.getElementById('metricTable');
+metrics.forEach(m=>{
+  const el = document.createElement('div');
+  el.className = 'metric-row';
+  el.innerHTML = `<div class="metric-name">${icon(m.icon)}${m.name}</div><div class="metric-desc">${m.desc}</div>`;
+  metricTable.appendChild(el);
+});
+
+const companies = [
+  { id:"A", name:"Accenture", color:"#A100FF", when:"May\u201926 \u2013 present", role:"Consulting Analyst, Accenture", points:[
+    "Benchmarked 52 global pension indices and built an interactive Replit-based platform to visualize insights and competitive comparisons."
+  ]},
+  { id:"T", name:"Turn The Bus", color:"#C45A3B", when:"Sep\u201925 \u2013 Nov\u201925", role:"Founder\u2019s Office GTM Strategy Intern, Turn The Bus", points:[
+    "Built a 7-metric strategic partnership evaluation framework, assessing 12 MSMEs to scale talent deployment initiatives.",
+    "Developed a skill-to-employment pathway strategy for 1M+ beneficiaries trained through VR-enabled STEM learning programs.",
+    "Formulated GTM strategy for a VR plus ITI youth upskilling model, and conducted competitive analysis of 14 global and Indian ed-tech providers."
+  ]},
+  { id:"AR", name:"Arcesium", color:"#1F1B3A", when:"Mar\u201925 \u2013 May\u201925", role:"Product Strategy Intern, Arcesium LLC", points:[
+    "Benchmarked 5 RegTech firms with a combined $68Bn market cap to identify regulatory product gaps and market opportunities.",
+    "Collaborated with 5 cross-functional teams to standardize 104 global regulations into a 94-field schema on a low-code and no-code tool.",
+    "Built a long-short takeover disclosure proof of concept using SQL and Python, and a product roadmap to check risk analysis across multiple assets.",
+    "Designed a sub-3-click workflow handling portfolio-level and cross-market aggregation logic across 52 global markets and 104 areas."
+  ]},
+  { id:"D", name:"Deloitte", color:"#86BC25", when:"Jun\u201922 \u2013 Jan\u201924", role:"Analyst, Deloitte Consulting USI", points:[
+    "Drove $100K revenue growth by assisting in an RFP for ERP upgrade strategy for a $22Bn-valued Energy and Utilities US-based business.",
+    "Reduced client customer cost by $100M ($144 per user) through development of a reward-based subscription program for a US client.",
+    "Built a 5-KPI revenue dashboard for the accounts team using data from 15+ tables, increasing efficiency by 90% for processing 100K+ records.",
+    "Automated 3 reporting workflows for leadership teams, reducing processing time for 2K+ records to under 30 seconds.",
+    "Optimized Order to Cash billing system across 100+ countries, and ensured data integrity for 5K+ directory paths across 70+ vendors.",
+    "Streamlined Procure to Pay operations for 200+ suppliers by resolving issues reported by users on 5 reporting systems.",
+    "Managed stakeholder communications across 5 geographies (US, EU, and APAC), and redesigned the vendor onboarding workflow.",
+    "Saved $700K in ERP license cost by migrating to a single ERP system, and earned a top 10% analyst rating with 2 awards.",
+    "Achieved a 200% increment in assessment results for 60 campus recruits, and mentored 3 juniors on client workflows in production.",
+    "Built a backend API for login and resolved operational issues in an e-commerce platform for a client operating across 100+ countries."
+  ]},
+];
+
+const companyStrip = document.getElementById('companyStrip');
+const companyWhen = document.getElementById('companyWhen');
+const companyRole = document.getElementById('companyRole');
+const companyBody = document.getElementById('companyBody');
+
+function selectCompany(i){
+  document.querySelectorAll('.company-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.company-chip')[i].classList.add('active');
+  const c = companies[i];
+  companyWhen.textContent = c.when;
+  companyRole.textContent = c.role;
+  companyBody.innerHTML = c.points.map(pt => `<li>${pt}</li>`).join('');
+}
+
+companies.forEach((c,i)=>{
+  const chip = document.createElement('div');
+  chip.className = 'company-chip' + (i===0 ? ' active' : '');
+  chip.innerHTML = `<div class="company-logo" style="background:${c.color}">${c.id}</div><div class="company-chip-text"><span class="company-chip-name">${c.name}</span><span class="company-chip-when">${c.when}</span></div>`;
+  chip.addEventListener('click', ()=>selectCompany(i));
+  companyStrip.appendChild(chip);
+});
+
+function switchView(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const tab = document.querySelector(`.tab[data-view="${name}"]`);
+  if(tab) tab.classList.add('active');
+  document.getElementById('view-' + name).classList.add('active');
+  if(name === 'map'){ buildMap(); }
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=> switchView(tab.dataset.view));
+});
+
+document.getElementById('bylineTag').addEventListener('click', ()=> switchView('about'));
+</script>
+
+</body>
+</html>
