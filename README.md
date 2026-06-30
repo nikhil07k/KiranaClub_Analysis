@@ -1,2 +1,2 @@
 # KiranaClub_Analysis
-I used google revies to make a analysis for kiranaclub and suggest potential solutions
+I used google reviwes to make an analysis of kiranaclub and suggest potential solutions
